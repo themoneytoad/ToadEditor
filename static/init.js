@@ -2,6 +2,8 @@ import { EditorMain } from "./atlas.js"
 
 let selected_tile_id = null;
 
+console.log("hi 2");
+
 window.tileOnClick = function (id) {
     let view = document.getElementById('view')
     let open = document.getElementById('open')

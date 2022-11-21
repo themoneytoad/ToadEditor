@@ -63,6 +63,11 @@ button {
     border-width: 0px;
 }
 
+.canv {
+    width: 480px;
+    height: 480px;
+}
+
 .container {
     width: 100%;
     display: flex;
@@ -118,6 +123,10 @@ button {
     grid-column-gap: 0px;
     grid-row-gap: 0px;
     grid-auto-rows: minmax(min-content, max-content)
+}
+
+.input-color-picker {
+    background-color: #446378;
 }
 
 h1 {

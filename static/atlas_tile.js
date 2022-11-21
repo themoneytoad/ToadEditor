@@ -15,6 +15,7 @@ export class AtlasTile {
     db_col = null
     db_row = null
     db_group = 'Empty'
+    db_pixels = null
 
 	constructor(conf) {
 		this.id = conf.id || null
@@ -31,7 +32,7 @@ export class AtlasTile {
         //this.element.textContent = this.id
         this.element.id = this.id
         this.element.className = "tile"
-        this.element.onmouseup = (e) => {window.tileOnClick(this.id)}
+        this.element.onmouseup = (e) => {window.atlas_tile_on_click(this.id)}
         this.img = document.createElement("div")
         this.img.textContent = this.id
         this.img.style.color = "rgba(255,255,255,0.05)"
@@ -75,6 +76,7 @@ export class AtlasTile {
         this.db_col = info['col']
         this.db_row = info['row']
         this.db_group = info['group']
+        this.db_pixels = info['pixels']
         this.set_tile(`${this.db_row},${this.db_col}`)
     }
 

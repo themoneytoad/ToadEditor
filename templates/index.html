@@ -4,7 +4,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{url_for('static',filename='stylish.css')}}">
-        <title>Minitoad</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css"/>
+        <title>ToadEditor</title>
     </head>
     <body>
         <!-- navbar -->
@@ -15,7 +16,7 @@
                     <div type="text" class="title" id="tile" style="padding-left:5px; width: 100%;"></div>
                 </div>
                 <div class="title-fill" style="width:40%">
-                    <button class="bar-item" id='view' disabled="true" onclick="">VIEW</button>
+                    <button class="bar-item" id='view' disabled="true" onclick="tile_editor_open()">VIEW</button>
                     <button class="bar-item" id='open' disabled="true" onclick="">OPEN</button>
                     <button class="bar-item" onclick="">EXPORT</button>
                 </div>
@@ -26,9 +27,37 @@
             <div class="container-tiles" id="map">
             </div>
         </div>
+        <!-- Tile Editor Popup-->
+        <div class="modal" id="tileEditor">
+            <div class="title-fill" style="width:100%; height:30px;">
+                <div class="title" id="modal-title" style="width:80%;padding-left:10px;">Tile</div>
+                <button class="bar-item" id="tile-edit" onclick="tile_editor_is_editing()">EDIT</button>
+                <button class="bar-item" onclick="tile_editor_zoom(true)">ZIN</button>
+                <button class="bar-item" onclick="tile_editor_zoom(false)">ZOT</button>
+                <button class="bar-item" onclick="tile_editor_close()">CLOSE</button>
+            </div>
+            <div style="display:flex; flex-direction: row;">
+                <div>
+                    <button class="bar-item" id="tile-picker-primary" onclick="tile_editor_color_id(0)" style="padding:5px;">Primary</button>
+                    <input type="text" data-coloris id="clrisP" onchange="tile_editor_color_picker_primary(this.value)" class="input-color-picker">
+                    <button class="bar-item" id="tile-picker-secondary" onclick="tile_editor_color_id(1)" style="padding:5px;">Secondary</button>
+                    <input type="text" data-coloris id="clrisS" onchange="tile_editor_color_picker_secondary(this.value)" class="input-color-picker">
+                    <button class="bar-item" id="tile-picker-terciary" onclick="tile_editor_color_id(2)" style="padding:5px;">Terciary</button>
+                    <input type="text" data-coloris id="clrisT" onchange="tile_editor_color_picker_terciary(this.value)" class="input-color-picker">
+                    <button class="bar-item" id="tile-picker-extra" onclick="tile_editor_color_id(3)" style="padding:5px;">Extra</button>
+                    <input type="text" data-coloris id="clrisE" onchange="tile_editor_color_picker_extra(this.value)" class="input-color-picker">
+                    <button class="bar-item" onclick="tile_editor_color_id(4)" style="padding:5px;">Erase</button>
+                    <div class="bar-item">Background</div>
+                    <input type="text" data-coloris id="clrisB" onchange="tile_editor_color_picker_background(this.value)" class="input-color-picker">
+                </div>
+                <canvas class="canv" id="cvs" height="480" width="480"></canvas>
+                <div></div>
+            </div>
+        </div>
         <script>
             var tileset = JSON.parse('{{ tiles | tojson | safe }}')
         </script>
-        <script type="module" src="{{url_for('static',filename='init.js')}}"></script>
+        <script type="module" src="{{url_for('static',filename='main.js')}}"></script>
+        <script type="module" src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
     </body>
 </html>

@@ -42,6 +42,7 @@ export class EditorMain {
                 'col': tileset[i][2],
                 'row': tileset[i][7],
                 'group': tileset[i][4],
+                'pixels': tileset[i][6],
             })
         }
     }
@@ -103,6 +104,7 @@ export class EditorMain {
     }
 
     update_modal_info(id) {
+        /*
         let tile = this.get_tile(id)
         let viewId = document.getElementById('view-id')
         viewId.innerHTML = tile.db_id
@@ -114,6 +116,7 @@ export class EditorMain {
         col.value = tile.db_col
         let row = document.getElementById('view-location-y')
         row.value = tile.db_row
+        */
     }
 
     swap_tiles(id) {

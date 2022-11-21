@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: toadeditor
+  labels:
+    app: toadeditor
+spec:
+  selector:
+    matchLabels:
+      app: toadeditor
+  template:
+    metadata:
+      labels:
+        app: toadeditor
+    spec:
+      containers:
+        - name: toadeditor
+          env:
+            - name: env_db
+              value: "totorodb"
+            - name: env_username
+              value: "totoro"
+            - name: env_password
+              value: "password"
+            - name: env_port
+              value: "32123"
+            - name: env_host
+              value: "192.168.1.200"
+          image: toadeditor:latest
+          imagePullPolicy: Never
+          ports:
+          - containerPort: 5100
+          volumeMounts:
+            - name: data
+              mountPath: /media/
+            - name: tatic
+              mountPath: /static/
+            - name: templates
+              mountPath: /templates/
+      volumes:
+      - name: data
+        hostPath:
+          path: /Users/dad/Documents/tmpeditor/
+          type: Directory
+      - name: static
+        hostPath:
+          path: /Users/dad/Documents/tmpeditor/static/
+          type: Directory
+      - name: templates
+        hostPath:
+          path: /Users/dad/Documents/tmpeditor/templates/
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: toadeditor
+  labels:
+    name: toadeditor
+spec:
+  ports:
+    - port: 80
+      name: http
+      nodePort: 31600
+      protocol: TCP
+      targetPort: 5100
+  type: LoadBalancer
+  selector:
+    app: toadeditor
