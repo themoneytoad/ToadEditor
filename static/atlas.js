@@ -1,13 +1,14 @@
 import { AtlasTile } from "./atlas_tile.js"
 
 export class EditorMain {
-    tiles = []
+    count = 0
+    listOfColors = []
     map_size_x = 128
     map_size_y = 128
-    tile_map_name = "tileset.png"
-    count = 0
     selected_tile = null
     selected_tile_previous = null
+    tiles = []
+    tile_map_name = "tileset.png"
     init() {
         for (var i=0; i< this.map_size_x; i++) {
             for (var j=0; j< this.map_size_y; j++) {

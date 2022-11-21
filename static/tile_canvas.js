@@ -25,15 +25,65 @@ export class TileCanvas {
     pixels = []
     pixel_size = 30
     selected_tile = null
-    selected_tile_previous = null
     size_x = 16
     size_y = 16
+    tileEditorColors = { // hacking this from the main.js by setting values directly.
+        'primary': {'r':0,'g':0,'b':0,'a':0},
+        'terciary': {'r':0,'g':0,'b':0,'a':0},
+        'secondary': {'r':0,'g':0,'b':0,'a':0},
+        'extra': {'r':0,'g':0,'b':0,'a':0},
+        'current': {'r':0,'g':0,'b':0,'a':0},
+    }
+    modalElements = {
+        'id': null,
+        'name': null,
+        'group': null,
+        'col': null,
+        'row': null,
+        'save': null,
+        'generateID': null,
+        'primary': null,
+        'secondary': null,
+        'terciary': null,
+        'extra': null,
+        'background': null
+    }
 
     init() {
+        // setup the canvas and get the offsets for mouse calcs
         this.canvas = document.getElementById("cvs")
         this.ctx = this.canvas.getContext("2d")
         this.canvas_bounding = this.canvas.getBoundingClientRect();
+        // Setup the colors for the color pickers
+        this.modalElements.primary = document.getElementById('clrisP')
+        this.modalElements.primary.value = '#2e232fff'
+        this.modalElements.primary.dispatchEvent(new Event('input', {bubbles: true}))
+        this.tileEditorColors.primary = convert_hex_to_rgba('#2e232fff')
+        this.modalElements.secondary = document.getElementById('clrisS')
+        this.modalElements.secondary.value = '#3f3546ff'
+        this.modalElements.secondary.dispatchEvent(new Event('input', {bubbles: true}))
+        this.tileEditorColors.secondary = convert_hex_to_rgba('#3f3546ff')
+        this.modalElements.terciary = document.getElementById('clrisT')
+        this.modalElements.terciary.value = '#625565ff'
+        this.modalElements.terciary.dispatchEvent(new Event('input', {bubbles: true}))
+        this.tileEditorColors.terciary = convert_hex_to_rgba('#625565ff')
+        this.modalElements.extra = document.getElementById('clrisE')
+        this.modalElements.extra.value = '#2e232f33'
+        this.modalElements.extra.dispatchEvent(new Event('input', {bubbles: true}))
+        this.tileEditorColors.extra = convert_hex_to_rgba('#2e232f33')
+        this.modalElements.background = document.getElementById('clrisB')
+        this.modalElements.background.value = '#2d3134ff'
+        this.modalElements.background.dispatchEvent(new Event('input', {bubbles: true}))
         this.backgroundColor = convert_hex_to_rgba('#2d3134ff')
+        this.tileEditorColors.current = convert_hex_to_rgba('#2e232fff')
+
+        this.modalElements.id = document.getElementById('tile-id')
+        this.modalElements.name = document.getElementById('tile-name')
+        this.modalElements.group = document.getElementById('tile-group')
+        this.modalElements.col = document.getElementById('tile-location-x')
+        this.modalElements.row = document.getElementById('tile-location-y')
+        this.modalElements.save = document.getElementById('tile-save')
+        this.modalElements.generateID = document.getElementById('tile-generate-id')
 
         for (var i = 0; i < this.size_x; i++) {
             for (var j = 0; j < this.size_y; j++) {
@@ -85,17 +135,15 @@ export class TileCanvas {
         this.ctx.fillRect(0,0, this.canvas_size, this.canvas_size)
         for (const pxl of this.pixels) {
             if (this.mouse_clicked) {
-                pxl.check_clicked(this.current_color)
+                pxl.check_clicked(this.tileEditorColors.current)
             }
             pxl.update();
         }
     }
 
-    get_list_of_top_four_colors() {
-        return this.listOfTopColors
-    }
-
-    import_pixel_data(data) {
+    import_pixel_data(tile) {
+        this.selected_tile = tile
+        let data = tile.db_pixels['pixels']
         let count = 0
         let colorsUsed = new Map()
         for (const row of data) {
@@ -125,6 +173,7 @@ export class TileCanvas {
                 break
             }
         }
+        this.update_modal_info_from_import()
     }
 
     set_active(active) {
@@ -135,24 +184,96 @@ export class TileCanvas {
         this.backgroundColor = color
     }
 
-    set_current_color(color) {
-        this.current_color = color
-    }
-
     set_is_editing(editing) {
         this.editing = editing
         for (const pxl of this.pixels) {
             pxl.set_is_editing(editing)
         }
+        this.modalElements.id.disabled = !editing
+        this.modalElements.name.disabled = !editing
+        this.modalElements.group.disabled = !editing
+        this.modalElements.col.disabled = !editing
+        this.modalElements.row.disabled = !editing
+        this.modalElements.save.disabled = !editing
+        this.modalElements.generateID.disabled = !editing
     }
 
     update() {
         this.draw();
     }
 
+    update_color_picker(color, id) {
+        let colorConvert = convert_hex_to_rgba(color)
+        if (id == 0) {
+            if (this.tileEditorColors.currentID == this.tileEditorColors.primary) {
+                this.tileEditorColors.current = colorConvert
+            }
+            this.tileEditorColors.primary = colorConvert
+        }
+        else if (id == 1) {
+            if (this.tileEditorColors.current == this.tileEditorColors.secondary) {
+                this.tileEditorColors.current = colorConvert
+            }
+            this.tileEditorColors.secondary = colorConvert
+        }
+        else if (id = 2) {
+            if (this.tileEditorColors.current == this.tileEditorColors.terciary) {
+                this.tileEditorColors.current = colorConvert
+            }
+            this.tileEditorColors.terciary = colorConvert
+        }
+        else if (id = 3) {
+            if (this.tileEditorColors.current == this.tileEditorColors.extra) {
+                this.tileEditorColors.current = colorConvert
+            }
+            this.tileEditorColors.extra = colorConvert
+        }
+        else {
+
+        }
+    }
+
     update_pixel_size() {
         for (const pxl of this.pixels) {
             pxl.set_size(this.pixel_size)
+        }
+    }
+
+    update_modal_info_from_import() {
+        this.modalElements.id.innerHTML = this.selected_tile.db_id
+        this.modalElements.id.disabled = true
+        this.modalElements.name.value = this.selected_tile.db_name
+        this.modalElements.name.disabled = true
+        this.modalElements.group.value = this.selected_tile.db_group
+        this.modalElements.group.disabled = true
+        this.modalElements.col.value = this.selected_tile.db_col
+        this.modalElements.col.disabled = true
+        this.modalElements.row.value = this.selected_tile.db_row
+        this.modalElements.row.disabled = true
+        this.modalElements.save.disabled = true
+        this.modalElements.generateID.disabled = true
+        // updates color info
+        for (var i = 0; i < this.listOfTopColors.length; i++) {
+            if (i == 0) {
+                this.modalElements.primary.value = this.listOfTopColors[i]
+                this.modalElements.primary.dispatchEvent(new Event('input', {bubbles: true}))
+                this.tileEditorColors.primary = convert_hex_to_rgba(this.listOfTopColors[i])
+            }
+            else if (i == 1) {
+                this.modalElements.secondary.value = this.listOfTopColors[i]
+                this.modalElements.secondary.dispatchEvent(new Event('input', {bubbles: true}))
+                this.tileEditorColors.secondary = convert_hex_to_rgba(this.listOfTopColors[i])
+            }
+            else if (i == 2) {
+                this.modalElements.terciary.value = this.listOfTopColors[i]
+                this.modalElements.terciary.dispatchEvent(new Event('input', {bubbles: true}))
+                this.tileEditorColors.terciary = convert_hex_to_rgba(this.listOfTopColors[i])
+            }
+            else if (i == 3) {
+                this.modalElements.extra.value = this.listOfTopColors[i]
+                this.modalElements.extra.dispatchEvent(new Event('input', {bubbles: true}))
+                this.tileEditorColors.extra = convert_hex_to_rgba(this.listOfTopColors[i])
+            }
         }
     }
 

@@ -30,28 +30,56 @@
         <!-- Tile Editor Popup-->
         <div class="modal" id="tileEditor">
             <div class="title-fill" style="width:100%; height:30px;">
-                <div class="title" id="modal-title" style="width:80%;padding-left:10px;">Tile</div>
+                <div class="title" style="width:80%;padding-left:10px;">Tile View</div>
                 <button class="bar-item" id="tile-edit" onclick="tile_editor_is_editing()">EDIT</button>
                 <button class="bar-item" onclick="tile_editor_zoom(true)">ZIN</button>
                 <button class="bar-item" onclick="tile_editor_zoom(false)">ZOT</button>
                 <button class="bar-item" onclick="tile_editor_close()">CLOSE</button>
             </div>
             <div style="display:flex; flex-direction: row;">
-                <div>
+                <div style="padding-right:5%; padding-left: 2%;">
                     <button class="bar-item" id="tile-picker-primary" onclick="tile_editor_color_id(0)" style="padding:5px;">Primary</button>
-                    <input type="text" data-coloris id="clrisP" onchange="tile_editor_color_picker_primary(this.value)" class="input-color-picker">
+                    <input type="text" data-coloris id="clrisP" onchange="tile_editor_color_picker(this.value, 0)" class="input-color-picker">
                     <button class="bar-item" id="tile-picker-secondary" onclick="tile_editor_color_id(1)" style="padding:5px;">Secondary</button>
-                    <input type="text" data-coloris id="clrisS" onchange="tile_editor_color_picker_secondary(this.value)" class="input-color-picker">
+                    <input type="text" data-coloris id="clrisS" onchange="tile_editor_color_picker(this.value, 1)" class="input-color-picker">
                     <button class="bar-item" id="tile-picker-terciary" onclick="tile_editor_color_id(2)" style="padding:5px;">Terciary</button>
-                    <input type="text" data-coloris id="clrisT" onchange="tile_editor_color_picker_terciary(this.value)" class="input-color-picker">
+                    <input type="text" data-coloris id="clrisT" onchange="tile_editor_color_picker(this.value, 2)" class="input-color-picker">
                     <button class="bar-item" id="tile-picker-extra" onclick="tile_editor_color_id(3)" style="padding:5px;">Extra</button>
-                    <input type="text" data-coloris id="clrisE" onchange="tile_editor_color_picker_extra(this.value)" class="input-color-picker">
+                    <input type="text" data-coloris id="clrisE" onchange="tile_editor_color_picker(this.value, 3)" class="input-color-picker">
                     <button class="bar-item" onclick="tile_editor_color_id(4)" style="padding:5px;">Erase</button>
                     <div class="bar-item">Background</div>
                     <input type="text" data-coloris id="clrisB" onchange="tile_editor_color_picker_background(this.value)" class="input-color-picker">
                 </div>
                 <canvas class="canv" id="cvs" height="480" width="480"></canvas>
-                <div></div>
+                <div style="display:flex; flex-direction: row; width:100%;">
+                    <div class="tile" id="view-tile"></div>
+                    <div style="display:flex; flex-direction:column; width: 90%; margin-left: 5%; margin-right: 5%;">
+                        <div style="display: flex; flex-direction: row;">
+                            <div class="title">Id:</div>
+                            <div class="title" id="tile-id"></div>
+                        </div>
+                        <div style="display: flex; flex-direction: row;">
+                            <div class="title">Name:</div>
+                            <input type="text" class="title" id="tile-name" style="padding-left:5px; width: 100%;" onchange="tile_editor_name(this.value)"></input>
+                        </div>
+                        <div style="display: flex; flex-direction: row;">
+                            <div class="title">Group:</div>
+                            <input type="text" class="title" id="tile-group" style="padding-left:5px; width: 100%;" onchange="tile_editor_group(this.value)"></input>
+                        </div>
+                        <div style="display: flex; flex-direction: row;">
+                            <div class="title">Column:</div>
+                            <input type="text" class="title" id="tile-location-x" style="padding-left:5px; width: 100%;" onchange="tile_editor_location_col(this.value)"></input>
+                        </div>
+                        <div style="display: flex; flex-direction: row;">
+                            <div class="title">Row:</div>
+                            <input type="text" class="title" id="tile-location-y" style="padding-left:5px; width: 100%;" onchange="tile_editor_location_row(this.value)"></input>
+                        </div>
+                        <div class="title-fill" style="width:100%; height:30px;">
+                            <button class="bar-item" id="tile-save" onclick="tile_editor_save()">SAVE</button>
+                            <button class="bar-item" id="tile-generate-id" onclick="tile_editor_generate_id()">NEW ID</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <script>

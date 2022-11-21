@@ -5,13 +5,6 @@ import { TileCanvas } from "./tile_canvas.js"
 let tileCanvas = null
 let atlas = null
 // need to have this here so i can initialize the colors
-let tileEditorColors = {
-    'primary': {'r':0,'g':0,'b':0,'a':0},
-    'terciary': {'r':0,'g':0,'b':0,'a':0},
-    'secondary': {'r':0,'g':0,'b':0,'a':0},
-    'extra': {'r':0,'g':0,'b':0,'a':0},
-    'current': {'r':0,'g':0,'b':0,'a':0}
-}
 let selectionColors = {
     'background': {
         'selected': '#E1E1E1',
@@ -46,22 +39,6 @@ window.addEventListener('load', function () {
           ],
         defaultColor: '#2e232f'
     });
-    this.document.getElementById('clrisP').value = '#2e232fff'
-    this.document.getElementById('clrisP').dispatchEvent(new Event('input', {bubbles: true}))
-    tileEditorColors.primary = convert_hex_to_rgba('#2e232fff')
-    this.document.getElementById('clrisS').value = '#3f3546ff'
-    this.document.getElementById('clrisS').dispatchEvent(new Event('input', {bubbles: true}))
-    tileEditorColors.secondary = convert_hex_to_rgba('#3f3546ff')
-    this.document.getElementById('clrisT').value = '#625565ff'
-    this.document.getElementById('clrisT').dispatchEvent(new Event('input', {bubbles: true}))
-    tileEditorColors.terciary = convert_hex_to_rgba('#625565ff')
-    this.document.getElementById('clrisE').value = '#2e232f33'
-    this.document.getElementById('clrisE').dispatchEvent(new Event('input', {bubbles: true}))
-    tileEditorColors.extra = convert_hex_to_rgba('#2e232f33')
-    this.document.getElementById('clrisB').value = '#2d3134ff'
-    this.document.getElementById('clrisB').dispatchEvent(new Event('input', {bubbles: true}))
-    tileCanvas.set_background_color(convert_hex_to_rgba('#2d3134ff'))
-    tileCanvas.set_current_color(convert_hex_to_rgba('#2e232fff'))
 })
 
 window.addEventListener('mousemove', function(e) {
@@ -75,7 +52,6 @@ window.addEventListener('mousedown', function() {
 window.addEventListener('mouseup', function() {
     tileCanvas.mouse_click(false)
 })
-
 
 window.convert_hex_to_rgba = function(color) {
     var test = {
@@ -165,32 +141,32 @@ let tileEditorStatus = {
     'editing': false
 }
 
+// may want to just move this code into the tile_canvas.js file
 window.tile_editor_color_id = function(id) {
     tile_editor_reset_color_options()
     if (id == 0) {
-        tileEditorColors.current = tileEditorColors.primary
+        tileCanvas.tileEditorColors.current = tileCanvas.tileEditorColors.primary
         tilePickerElements.primary.style.backgroundColor = selectionColors.background.selected
         tilePickerElements.primary.style.color = selectionColors.font.selected
     }
     else if (id == 1) {
-        tileEditorColors.current = tileEditorColors.secondary
+        tileCanvas.tileEditorColors.current = tileCanvas.tileEditorColors.secondary
         tilePickerElements.secondary.style.backgroundColor = selectionColors.background.selected
         tilePickerElements.secondary.style.color = selectionColors.font.selected
     }
     else if (id == 2) {
-        tileEditorColors.current = tileEditorColors.terciary
+        tileCanvas.tileEditorColors.current = tileCanvas.tileEditorColors.terciary
         tilePickerElements.terciary.style.backgroundColor = selectionColors.background.selected
         tilePickerElements.terciary.style.color = selectionColors.font.selected
     }
     else if (id == 3) {
-        tileEditorColors.current = tileEditorColors.extra
+        tileCanvas.tileEditorColors.current = tileCanvas.tileEditorColors.extra
         tilePickerElements.extra.style.backgroundColor = selectionColors.background.selected
         tilePickerElements.extra.style.color = selectionColors.font.selected
     }
     else {
-        tileEditorColors.current = {'r':0,'g':0,'b':0,'a':0}
+        tileCanvas.tileEditorColors.current = {'r':0,'g':0,'b':0,'a':0}
     }
-    tileCanvas.set_current_color(tileEditorColors.current)
     tileEditorColorID = id
 }
 
@@ -205,36 +181,8 @@ window.tile_editor_reset_color_options = function() {
     tilePickerElements.extra.style.color = selectionColors.font.unselected
 }
 
-window.tile_editor_color_picker_primary = function(event) {
-    tileEditorColors.primary = convert_hex_to_rgba(event)
-    if (tileEditorColorID == 0) {
-        tileEditorColors.current = tileEditorColors.primary
-        tileCanvas.set_current_color(tileEditorColors.current)
-    }
-}
-
-window.tile_editor_color_picker_secondary = function(event) {
-    tileEditorColors.secondary = convert_hex_to_rgba(event)
-    if (tileEditorColorID == 1) {
-        tileEditorColors.current = tileEditorColors.secondary
-        tileCanvas.set_current_color(tileEditorColors.current)
-    }
-}
-
-window.tile_editor_color_picker_terciary = function(event) {
-    tileEditorColors.terciary = convert_hex_to_rgba(event)
-    if (tileEditorColorID == 2) {
-        tileEditorColors.current = tileEditorColors.terciary
-        tileCanvas.set_current_color(tileEditorColors.current)
-    }
-}
-
-window.tile_editor_color_picker_extra = function(event) {
-    tileEditorColors.extra = convert_hex_to_rgba(event)
-    if (tileEditorColorID == 3) {
-        tileEditorColors.current = tileEditorColors.extra
-        tileCanvas.set_current_color(tileEditorColors.current)
-    }
+window.tile_editor_color_picker = function(event, id) {
+    tileCanvas.update_color_picker(event, id)
 }
 
 window.tile_editor_color_picker_background = function(event) {
@@ -259,35 +207,15 @@ window.tile_editor_zoom = function (zoomIn) {
 window.tile_editor_close = function () {
 	tileEditorModal.style.display = "none"
     tileCanvas.set_active(false)
+    tileCanvas.set_is_editing(false)
 }
 
 window.tile_editor_open = function () {
     let tile = atlas.get_tile(selected_tile_id)
-    tileCanvas.import_pixel_data(tile.db_pixels['pixels'])
-    let listOfColors = tileCanvas.get_list_of_top_four_colors()
-    for (var i = 0; i < listOfColors.length; i++) {
-        if (i == 0) {
-            document.getElementById('clrisP').value = listOfColors[i]
-            document.getElementById('clrisP').dispatchEvent(new Event('input', {bubbles: true}))
-            tileEditorColors.primary = convert_hex_to_rgba(listOfColors[i])
-        }
-        else if (i == 1) {
-            document.getElementById('clrisS').value = listOfColors[i]
-            document.getElementById('clrisS').dispatchEvent(new Event('input', {bubbles: true}))
-            tileEditorColors.secondary = convert_hex_to_rgba(listOfColors[i])
-        }
-        else if (i == 2) {
-            document.getElementById('clrisT').value = listOfColors[i]
-            document.getElementById('clrisT').dispatchEvent(new Event('input', {bubbles: true}))
-            tileEditorColors.terciary = convert_hex_to_rgba(listOfColors[i])
-        }
-        else if (i == 3) {
-            document.getElementById('clrisE').value = listOfColors[i]
-            document.getElementById('clrisE').dispatchEvent(new Event('input', {bubbles: true}))
-            tileEditorColors.extra = convert_hex_to_rgba(listOfColors[i])
-        }
-    }
+    tileCanvas.import_pixel_data(tile)
     tileEditorModal.style.display = "block"
     tileCanvas.set_active(true)
+    tileCanvas.set_is_editing(false)
+    tile_editor_reset_color_options()
     tileCanvas.set_mouse_offset()
 }
