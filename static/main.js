@@ -17,6 +17,10 @@ let selectionColors = {
 }
 
 window.addEventListener('load', function () {
+    atlas_export_atlas_first()
+})
+
+window.init = function () {
 	atlas = new EditorMain()
 	atlas.init()
 	tileCanvas = new TileCanvas()
@@ -39,7 +43,7 @@ window.addEventListener('load', function () {
           ],
         defaultColor: '#2e232f'
     });
-})
+}
 
 window.addEventListener('mousemove', function(e) {
     tileCanvas.mouse_move(e)
@@ -103,19 +107,16 @@ window.convert_rgba_to_hex = function(color) {
 let selected_tile_id = null;
 window.atlas_tile_on_click = function (id) {
 	let view = document.getElementById('view')
-    let open = document.getElementById('open')
 
     if (selected_tile_id != id) {
         selected_tile_id = id
         atlas.tile_selected(id)
         view.disabled = false;
-        open.disabled = false;
     }
     else {
         selected_tile_id = null
         atlas.tile_selected(null)
         view.disabled = true;
-        open.disabled = true;
     }
 
     let modal = document.getElementById('tileEditor')
@@ -125,6 +126,38 @@ window.atlas_tile_on_click = function (id) {
     }
 }
 
+window.atlas_export_atlas = function () {
+    fetch(`/exportatlas`, {
+        method: 'GET',
+    }).then(function (response) {
+        return response.text()
+    }).then(function (data) {
+        atlas_import_tiles()
+    })
+}
+
+window.atlas_export_atlas_first = function () {
+    fetch(`/exportatlas`, {
+        method: 'GET',
+    }).then(function (response) {
+        return response.text()
+    }).then(function (data) {
+        if (data == 'Success') {
+            init()
+        }
+    })
+}
+
+window.atlas_import_tiles = function () {
+    fetch(`/importtiles`, {
+        method: 'GET',
+    }).then(function (response) {
+        return response.text()
+    }).then(function (data) {
+        tileset = JSON.parse(data)
+        atlas.init()
+    })
+}
 
 // Tile Editor Stuff
 let tileEditorModal = document.getElementById("tileEditor")
@@ -210,7 +243,7 @@ window.tile_editor_close = function () {
     tileCanvas.set_is_editing(false)
 }
 
-window.tile_editor_open = function () {
+window.tile_editor_view = function () {
     let tile = atlas.get_tile(selected_tile_id)
     tileCanvas.import_pixel_data(tile)
     tileEditorModal.style.display = "block"
@@ -218,4 +251,19 @@ window.tile_editor_open = function () {
     tileCanvas.set_is_editing(false)
     tile_editor_reset_color_options()
     tileCanvas.set_mouse_offset()
+}
+
+window.tile_editor_save = function () {
+    let data = tileCanvas.get_exported_data()
+    fetch(`/exporttile/${JSON.stringify(data)}`, {
+        method: 'POST',
+    }).then (function (response) {
+        return response.text()
+    }).then(function (data) {
+        if (data == 'Success') {
+            atlas_export_atlas()
+        }
+    })
+    tileCanvas.set_is_editing(false)
+    tile_editor_reset_color_options()
 }

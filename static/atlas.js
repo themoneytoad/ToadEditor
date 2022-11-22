@@ -2,7 +2,6 @@ import { AtlasTile } from "./atlas_tile.js"
 
 export class EditorMain {
     count = 0
-    listOfColors = []
     map_size_x = 128
     map_size_y = 128
     selected_tile = null
@@ -10,6 +9,15 @@ export class EditorMain {
     tiles = []
     tile_map_name = "tileset.png"
     init() {
+        this.count = 0
+        while (this.tiles.length > 0) {
+            this.tiles.pop()
+        }
+        let map = document.getElementById('map')
+        while( map.firstChild) {
+            map.removeChild(map.firstChild)
+        }
+
         for (var i=0; i< this.map_size_x; i++) {
             for (var j=0; j< this.map_size_y; j++) {
                 /*

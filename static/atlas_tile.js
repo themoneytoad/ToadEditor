@@ -22,6 +22,7 @@ export class AtlasTile {
 		this.tile = conf.tile || 0
         this.loc_col = conf.loc_col || 0
         this.loc_row = conf.loc_row || 0
+        this.backgroundImg = conf.img || null
 	}
     
     init() {
@@ -37,7 +38,9 @@ export class AtlasTile {
         this.img.textContent = this.id
         this.img.style.color = "rgba(255,255,255,0.05)"
         this.img.className = "tile-image"
-        this.img.style.backgroundImage = "url('/static/tileset.png')"
+        //this.img.style.backgroundImage = "url_for('grab_file', filename='tileset.png')"
+        //console.log(this.img.style.backgroundImage)
+        this.img.style.backgroundImage = "url('/media/tileset.png')"
         this.img.style.backgroundPosition = `${(this.tile%this.tile_size)*(100 / (this.tile_size-1))}% ${Math.floor(this.tile/this.tile_size)*(100 / (this.tile_size-1))}%`
         this.img.style.backgroundSize = this.tile_background_zoom
         this.element.appendChild(this.img);
