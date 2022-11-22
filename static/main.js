@@ -203,23 +203,18 @@ window.tile_editor_color_id = function(id) {
     tileEditorColorID = id
 }
 
-window.tile_editor_reset_color_options = function() {
-    tilePickerElements.primary.style.backgroundColor = selectionColors.background.unselected
-    tilePickerElements.primary.style.color = selectionColors.font.unselected
-    tilePickerElements.secondary.style.backgroundColor = selectionColors.background.unselected
-    tilePickerElements.secondary.style.color = selectionColors.font.unselected
-    tilePickerElements.terciary.style.backgroundColor = selectionColors.background.unselected
-    tilePickerElements.terciary.style.color = selectionColors.font.unselected
-    tilePickerElements.extra.style.backgroundColor = selectionColors.background.unselected
-    tilePickerElements.extra.style.color = selectionColors.font.unselected
-}
-
 window.tile_editor_color_picker = function(event, id) {
     tileCanvas.update_color_picker(event, id)
 }
 
 window.tile_editor_color_picker_background = function(event) {
     tileCanvas.set_background_color(convert_hex_to_rgba(event))
+}
+
+window.tile_editor_close = function () {
+	tileEditorModal.style.display = "none"
+    tileCanvas.set_active(false)
+    tileCanvas.set_is_editing(false)
 }
 
 window.tile_editor_is_editing = function() {
@@ -233,24 +228,15 @@ window.tile_editor_is_editing = function() {
     tileCanvas.set_is_editing(tileEditorStatus.editing)
 }
 
-window.tile_editor_zoom = function (zoomIn) {
-	tileCanvas.zoom(zoomIn)
-}
-
-window.tile_editor_close = function () {
-	tileEditorModal.style.display = "none"
-    tileCanvas.set_active(false)
-    tileCanvas.set_is_editing(false)
-}
-
-window.tile_editor_view = function () {
-    let tile = atlas.get_tile(selected_tile_id)
-    tileCanvas.import_pixel_data(tile)
-    tileEditorModal.style.display = "block"
-    tileCanvas.set_active(true)
-    tileCanvas.set_is_editing(false)
-    tile_editor_reset_color_options()
-    tileCanvas.set_mouse_offset()
+window.tile_editor_reset_color_options = function() {
+    tilePickerElements.primary.style.backgroundColor = selectionColors.background.unselected
+    tilePickerElements.primary.style.color = selectionColors.font.unselected
+    tilePickerElements.secondary.style.backgroundColor = selectionColors.background.unselected
+    tilePickerElements.secondary.style.color = selectionColors.font.unselected
+    tilePickerElements.terciary.style.backgroundColor = selectionColors.background.unselected
+    tilePickerElements.terciary.style.color = selectionColors.font.unselected
+    tilePickerElements.extra.style.backgroundColor = selectionColors.background.unselected
+    tilePickerElements.extra.style.color = selectionColors.font.unselected
 }
 
 window.tile_editor_save = function () {
@@ -266,4 +252,34 @@ window.tile_editor_save = function () {
     })
     tileCanvas.set_is_editing(false)
     tile_editor_reset_color_options()
+}
+
+window.tile_editor_view = function () {
+    let tile = atlas.get_tile(selected_tile_id)
+    tileCanvas.import_pixel_data(tile)
+    tileEditorModal.style.display = "block"
+    tileCanvas.set_active(true)
+    tileCanvas.set_is_editing(false)
+    tile_editor_reset_color_options()
+    tileCanvas.set_mouse_offset()
+}
+
+window.tile_editor_update_group = function (value) {
+    tileCanvas.set_tile_name(value)
+}
+
+window.tile_editor_update_location_col = function (value) {
+    tileCanvas.set_tile_loc_col(value)
+}
+
+window.tile_editor_update_location_row = function (value) {
+    tileCanvas.set_tile_loc_row(value)
+}
+
+window.tile_editor_update_name = function (value) {
+    tileCanvas.set_tile_name(value)
+}
+
+window.tile_editor_zoom = function (zoomIn) {
+	tileCanvas.zoom(zoomIn)
 }

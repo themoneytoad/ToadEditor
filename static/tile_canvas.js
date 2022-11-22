@@ -183,7 +183,6 @@ export class TileCanvas {
     }
 
     import_pixel_data(tile) {
-        console.log(tile)
         this.selected_tile = tile
         if (tile.db_pixels == null) {
             this.new_tile(tile)
@@ -249,6 +248,24 @@ export class TileCanvas {
         this.modalElements.save.disabled = !editing
         this.modalElements.generateID.disabled = !editing
     }
+    
+    set_tile_loc_col(value) {
+        this.selected_tile.db_col = parseInt(value)
+    }
+
+    set_tile_loc_row(value) {
+        this.selected_tile.db_row = parseInt(value)
+    }
+    
+    set_tile_name(value) {
+        this.selected_tile.db_name = value
+    }
+
+    set_tile_group(value) {
+        this.selected_tile.db_group = value
+    }
+
+
 
     update() {
         this.draw();

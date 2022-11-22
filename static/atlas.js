@@ -5,7 +5,9 @@ export class EditorMain {
     map_size_x = 128
     map_size_y = 128
     selected_tile = null
+    selected_tile_id = null
     selected_tile_previous = null
+    selected_tile_previous_id = null
     tiles = []
     tile_map_name = "tileset.png"
     init() {
@@ -75,32 +77,32 @@ export class EditorMain {
     }
 
     tile_selected(id) {
-        if (id == null && this.selected_tile == id) {
+        if (id == null && this.selected_tile_id == id) {
             return
         }
 
-        if (id == null && this.selected_tile != id) {
-            let tile = this.get_tile(this.selected_tile)
-            tile.selected(false)
-            this.selected_tile = null
+        if (id == null && this.selected_tile_id != id) {
+            this.selected_tile = this.get_tile(this.selected_tile_id)
+            this.selected_tile.selected(false)
+            this.selected_tile_id = null
             return
         }
 
-        if (id != null && this.selected_tile == id) {
-            let tile = this.get_tile(id)
-            tile.selected(false)
-            this.selected_tile = null
+        if (id != null && this.selected_tile_id == id) {
+            this.selected_tile = this.get_tile(id)
+            this.selected_tile.selected(false)
+            this.selected_tile_id = null
             return
         }
 
-        if (this.selected_tile) {
-            this.selected_tile_previous = this.selected_tile
-            let prev = this.get_tile(this.selected_tile)
-            prev.selected(false)
+        if (this.selected_tile_id) {
+            this.selected_tile_previous_id = this.selected_tile_id
+            this.selected_tile_previous = this.get_tile(this.selected_tile_id)
+            this.selected_tile_previous.selected(false)
         }
-        this.selected_tile = id
-        let tile = this.get_tile(id)
-        tile.selected(true)
+        this.selected_tile_id = id
+        this.selected_tile = this.get_tile(id)
+        this.selected_tile.selected(true)
         this.update_modal_info(id)
         return
     }

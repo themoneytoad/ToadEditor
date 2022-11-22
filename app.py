@@ -14,13 +14,13 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 @app.route('/exportatlas', methods=['GET'])
 def export_atlas():
-    os.remove(f'/media/tileset.png')
-    os.remove(f'/static/tileset.png')
+    os.remove(f'./media/tileset.png')
+    os.remove(f'./static/tileset.png')
     db.connect()
-    tiles = db.execute_fetch(f"SELECT DISTINCT ON (name) * FROM tiles ORDER BY name, updated_at DESC")
+    dbtiles = db.execute_fetch(f"SELECT DISTINCT ON (name) * FROM tiles ORDER BY name, updated_at DESC")
     db.close()
 
-    for tile in tiles:
+    for tile in dbtiles:
         tl = {
             'name':tile[1],
             'col':tile[2],
@@ -37,25 +37,25 @@ def export_atlas():
 @app.route('/exporttile/<tile>',methods=['POST'])
 def export_tile(tile):
     db.connect()
-    data = json.loads(tile)
-    if (data['id'] != 'generate_new_uuid()'):
-        db.execute_query(f"UPDATE tiles SET name='{data['name']}', location_column='{data['loc_col']}', location_row='{data['loc_row']}', number_of_pixels='{data['size']}', tile_group='{data['group']}', pixels={Json(data['pixels'])} WHERE id='{data['id']}';")
+    export_tile_data = json.loads(tile)
+    if (export_tile_data['id'] != 'generate_new_uuid()'):
+        db.execute_query(f"UPDATE tiles SET name='{export_tile_data['name']}', location_column='{export_tile_data['loc_col']}', location_row='{export_tile_data['loc_row']}', number_of_pixels='{export_tile_data['size']}', tile_group='{export_tile_data['group']}', pixels={Json(export_tile_data['pixels'])} WHERE id='{export_tile_data['id']}';")
     else:
-        db.execute_query(f"INSERT INTO tiles(id, name, location_column, location_row, number_of_pixels, tile_group, pixels) VALUES (gen_random_uuid(), '{data['name']}', '{data['loc_col']}', '{data['loc_row']}', '{data['size']}', '{data['group']}', {Json(data['pixels'])});")
+        db.execute_query(f"INSERT INTO tiles(id, name, location_column, location_row, number_of_pixels, tile_group, pixels) VALUES (gen_random_uuid(), '{export_tile_data['name']}', '{export_tile_data['loc_col']}', '{export_tile_data['loc_row']}', '{export_tile_data['size']}', '{export_tile_data['group']}', {Json(export_tile_data['pixels'])});")
     db.close()
     return "Success"
 
 @app.route('/importtiles/',methods=['GET'])
 def import_tiles():
     db.connect()
-    tiles = db.execute_fetch(f"SELECT DISTINCT ON (name) * FROM tiles ORDER BY name, updated_at DESC")
+    import_tile_data = db.execute_fetch(f"SELECT DISTINCT ON (name) * FROM tiles ORDER BY name, updated_at DESC")
     db.close()
-    return jsonify(tiles)
+    return jsonify(import_tile_data)
 
 # Not sure this is used
 @app.route('/updateatlasimage/',methods=['GET'])
 def update_atlas_image():
-    os.popen('cp /media/tileset.png /static/tileset.png')
+    os.popen('cp ./media/tileset.png ./static/tileset.png')
     return "Success"
 
 @app.route('/media/<filename>')
@@ -65,11 +65,11 @@ def grab_file(filename):
 
 @app.route('/', methods=['GET'])
 def index():
-    os.popen('cp /media/tileset.png /static/tileset.png')
+    os.popen('cp ./media/tileset.png ./static/tileset.png')
     db.connect()
-    tiles = db.execute_fetch(f"SELECT DISTINCT ON (name) * FROM tiles ORDER BY name, updated_at DESC")
+    tile_data = db.execute_fetch(f"SELECT DISTINCT ON (name) * FROM tiles ORDER BY name, updated_at DESC")
     db.close()
-    return render_template("index.html", tiles=tiles)
+    return render_template("index.html", tiles=tile_data)
 
 @app.after_request
 def add_header(response):
