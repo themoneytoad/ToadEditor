@@ -10,7 +10,8 @@ export class EditorMain {
     selected_tile_previous_id = null
     tiles = []
     tile_map_name = "tileset.png"
-    init() {
+    init(atlasImgFilename) {
+        this.tile_map_name = atlasImgFilename
         this.count = 0
         while (this.tiles.length > 0) {
             this.tiles.pop()
@@ -36,7 +37,7 @@ export class EditorMain {
                 */
 
                 let index = `${this.count}`
-                let tile = new AtlasTile({id: index, tile: 0, collision: false, loc_row: i+1, loc_col: j+1})
+                let tile = new AtlasTile({id: index, tile: 0, collision: false, loc_row: i+1, loc_col: j+1, img_filename: this.tile_map_name})
                 tile.init();
                 this.tiles.push(tile)
                 this.count += 1
@@ -75,6 +76,13 @@ export class EditorMain {
             }
         }
     }
+    
+    reload_atlas(img_url) {
+        console.log('reload called')
+        for (const tile of this.tiles) {
+            tile.reload_image(img_url)
+        }
+    }
 
     tile_selected(id) {
         if (id == null && this.selected_tile_id == id) {
@@ -89,6 +97,7 @@ export class EditorMain {
         }
 
         if (id != null && this.selected_tile_id == id) {
+
             this.selected_tile = this.get_tile(id)
             this.selected_tile.selected(false)
             this.selected_tile_id = null

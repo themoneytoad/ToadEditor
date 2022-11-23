@@ -1,9 +1,21 @@
 import { EditorMain } from "./atlas.js"
 import { TileCanvas } from "./tile_canvas.js"
 
+// socketio
+var socket = io();
+socket.on('connect', function() {
+    socket.emit('my event', {data: 'Connected!'})
+})
+
+socket.on('my response', function(msg) {
+    console.log(msg)
+})
+
 // General Stuff, and things that other functions rely on.
 let tileCanvas = null
 let atlas = null
+let firstLoad = true // if user is loading in page for first time, should pull the latest image and update it
+let atlasImageFilename = ''
 // need to have this here so i can initialize the colors
 let selectionColors = {
     'background': {
@@ -17,12 +29,12 @@ let selectionColors = {
 }
 
 window.addEventListener('load', function () {
-    atlas_export_atlas_first()
+    socket.emit('export_atlas_request')
 })
 
 window.init = function () {
 	atlas = new EditorMain()
-	atlas.init()
+	atlas.init(atlasImageFilename)
 	tileCanvas = new TileCanvas()
     tileCanvas.init()
     Coloris({
@@ -105,6 +117,51 @@ window.convert_rgba_to_hex = function(color) {
 
 // Atlas Editor Stuff
 let selected_tile_id = null;
+socket.on('export_atlas_response', function(msg) {
+    if (msg['success'] == true) {
+        if (firstLoad) {
+            socket.emit('get_new_atlas_image_request')
+            console.log('Initial Load')
+        }
+        else {
+            socket.emit('import_atlas_tiles_request')
+        }
+        console.log('Success: Saved Successful')
+    } else {
+        console.log('Error: Saving Unsuccessful')
+    }
+})
+
+socket.on('export_tile_response', function(msg) {
+    console.log('Exported Tile')
+    if (msg['success'] == true) {
+        console.log('Successfully Exported Tile')
+    } else {
+        console.log('Error: Couldnt Export Tile!')
+    }
+    socket.emit('export_atlas_request')
+})
+
+socket.on('get_new_atlas_image_response', function(msg) {
+    console.log('Get New Atlas Image')
+    if (firstLoad == true) {
+        firstLoad = false
+        atlasImageFilename = msg['image']
+        init()
+        return
+    }
+    atlasImageFilename = msg['image']
+    atlas.init(atlasImageFilename)
+    let tile = atlas.get_tile(selected_tile_id)
+    tileCanvas.import_pixel_data(tile)
+})
+
+socket.on('import_atlas_tiles_response', function(msg) {
+    console.log('Import Atlas Tiles Called')
+    tileset = JSON.parse(msg)
+    socket.emit('get_new_atlas_image_request')
+})
+
 window.atlas_tile_on_click = function (id) {
 	let view = document.getElementById('view')
 
@@ -124,39 +181,6 @@ window.atlas_tile_on_click = function (id) {
     if (modal.style.display == "block" && selected_tile_id == null) {
         modal.style.display = "none"
     }
-}
-
-window.atlas_export_atlas = function () {
-    fetch(`/exportatlas`, {
-        method: 'GET',
-    }).then(function (response) {
-        return response.text()
-    }).then(function (data) {
-        atlas_import_tiles()
-    })
-}
-
-window.atlas_export_atlas_first = function () {
-    fetch(`/exportatlas`, {
-        method: 'GET',
-    }).then(function (response) {
-        return response.text()
-    }).then(function (data) {
-        if (data == 'Success') {
-            init()
-        }
-    })
-}
-
-window.atlas_import_tiles = function () {
-    fetch(`/importtiles`, {
-        method: 'GET',
-    }).then(function (response) {
-        return response.text()
-    }).then(function (data) {
-        tileset = JSON.parse(data)
-        atlas.init()
-    })
 }
 
 // Tile Editor Stuff
@@ -201,6 +225,7 @@ window.tile_editor_color_id = function(id) {
         tileCanvas.tileEditorColors.current = {'r':0,'g':0,'b':0,'a':0}
     }
     tileEditorColorID = id
+    tileCanvas.set_color_id(id)
 }
 
 window.tile_editor_color_picker = function(event, id) {
@@ -218,14 +243,13 @@ window.tile_editor_close = function () {
 }
 
 window.tile_editor_is_editing = function() {
-    tileEditorStatus.editing = !tileEditorStatus.editing
-    if (tileEditorStatus.editing) {
+    if (tileCanvas.editing) {
         tile_editor_color_id(tileEditorColorID)
     }
     else {
         tile_editor_reset_color_options()
     }
-    tileCanvas.set_is_editing(tileEditorStatus.editing)
+    tileCanvas.set_is_editing(!tileCanvas.editing)
 }
 
 window.tile_editor_reset_color_options = function() {
@@ -241,17 +265,10 @@ window.tile_editor_reset_color_options = function() {
 
 window.tile_editor_save = function () {
     let data = tileCanvas.get_exported_data()
-    fetch(`/exporttile/${JSON.stringify(data)}`, {
-        method: 'POST',
-    }).then (function (response) {
-        return response.text()
-    }).then(function (data) {
-        if (data == 'Success') {
-            atlas_export_atlas()
-        }
-    })
+    socket.emit('export_tile_request', JSON.stringify(data))
     tileCanvas.set_is_editing(false)
     tile_editor_reset_color_options()
+    tile_editor_close()
 }
 
 window.tile_editor_view = function () {
@@ -265,7 +282,7 @@ window.tile_editor_view = function () {
 }
 
 window.tile_editor_update_group = function (value) {
-    tileCanvas.set_tile_name(value)
+    tileCanvas.set_tile_group(value)
 }
 
 window.tile_editor_update_location_col = function (value) {

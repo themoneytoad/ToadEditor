@@ -5,6 +5,7 @@ from typing import Tuple, List, BinaryIO
 import zlib
 import struct
 import numpy as np
+from datetime import datetime
 
 Pixel = Tuple[int, int, int, int]
 Image = List[List[Pixel]]
@@ -25,13 +26,6 @@ class Imagemaker:
         blank = {'r':0,'g':0,'b':0,'a':0}
         self.img = np.full((self.imageSize, self.imageSize), blank)
 
-    def generate_blank_image(self):
-        for i in range(self.numRowCol):
-            row = []
-            for j in range(self.numRowCol):
-                row.append(self.emptyTile)
-            self.img.append(row)
-
     def set_tile_in_image(self, tile):
         start_row = tile['row'] * 16
         start_col = tile['col'] * 16
@@ -40,7 +34,7 @@ class Imagemaker:
                 self.img[start_row+row][start_col+col] = tile['color'][row][col]
 
     def export_image(self):
-        out = { "img" : self.img, "name" : "tileset.png"}
+        out = { "img" : self.img, "name" : "tileset"}
         img, name = self.convert_pattern(out)
         self.save_png(img, name)
 
@@ -94,10 +88,11 @@ class Imagemaker:
         self.chunk(out, b'IEND', data=b'')
 
     def save_png(self, img: Image, filename: str) -> None:
-        with open(f'./media/{filename}', 'wb') as out:
+        date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        with open(f'./media/{filename}-{date}.png', 'wb') as out:
         #with open(f'{os.getcwd()}/{filename}', 'wb') as out:
             self.dump_png(out, img)
-        with open(f'./static/{filename}', 'wb') as out:
+        with open(f'./static/{filename}-{date}.png', 'wb') as out:
             self.dump_png(out, img)
 
     def convert_pattern(self, js: dict) -> Image:
