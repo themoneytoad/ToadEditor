@@ -3,6 +3,7 @@ export class AtlasTile {
     tile = null
     element = null
     img = null
+    img_filename = ''
     container = null
     loc_col = 0;
     loc_row = 0;
@@ -22,7 +23,7 @@ export class AtlasTile {
 		this.tile = conf.tile || 0
         this.loc_col = conf.loc_col || 0
         this.loc_row = conf.loc_row || 0
-        this.backgroundImg = conf.img || null
+        this.img_filename = conf.img_filename || 'tileset.png'
 	}
     
     init() {
@@ -40,7 +41,7 @@ export class AtlasTile {
         this.img.className = "tile-image"
         //this.img.style.backgroundImage = "url_for('grab_file', filename='tileset.png')"
         //console.log(this.img.style.backgroundImage)
-        this.img.style.backgroundImage = "url('/media/tileset.png')"
+        this.img.style.backgroundImage = `url('/media/${this.img_filename}')`
         this.img.style.backgroundPosition = `${(this.tile%this.tile_size)*(100 / (this.tile_size-1))}% ${Math.floor(this.tile/this.tile_size)*(100 / (this.tile_size-1))}%`
         this.img.style.backgroundSize = this.tile_background_zoom
         this.element.appendChild(this.img);
@@ -67,6 +68,13 @@ export class AtlasTile {
 
     get_tile_info() {
         return {id: this.id, tile: this.tile}
+    }
+
+    reload_image(img_url) {
+        //this.img.src = `url(data:image/png;base64,${img_url})`
+        //this.img.src = `data:image/png;base64,${img_url}`
+        //this.img.src = `url(${img_url})`
+        this.img.style.backgroundImage = `url(/media/tileset.png)`
     }
 
     set_id(id) {

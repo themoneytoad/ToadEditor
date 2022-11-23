@@ -34,6 +34,7 @@ export class TileCanvas {
         'secondary': {'r':0,'g':0,'b':0,'a':0},
         'extra': {'r':0,'g':0,'b':0,'a':0},
         'current': {'r':0,'g':0,'b':0,'a':0},
+        'currentID': 0
     }
     modalElements = {
         'id': null,
@@ -235,6 +236,10 @@ export class TileCanvas {
         this.backgroundColor = color
     }
 
+    set_color_id(id) {
+        this.tileEditorColors.currentID = id
+    }
+
     set_is_editing(editing) {
         this.editing = editing
         for (const pxl of this.pixels) {
@@ -265,8 +270,6 @@ export class TileCanvas {
         this.selected_tile.db_group = value
     }
 
-
-
     update() {
         this.draw();
     }
@@ -274,25 +277,25 @@ export class TileCanvas {
     update_color_picker(color, id) {
         let colorConvert = convert_hex_to_rgba(color)
         if (id == 0) {
-            if (this.tileEditorColors.currentID == this.tileEditorColors.primary) {
+            if (this.tileEditorColors.currentID == id) {
                 this.tileEditorColors.current = colorConvert
             }
             this.tileEditorColors.primary = colorConvert
         }
         else if (id == 1) {
-            if (this.tileEditorColors.current == this.tileEditorColors.secondary) {
+            if (this.tileEditorColors.current == id) {
                 this.tileEditorColors.current = colorConvert
             }
             this.tileEditorColors.secondary = colorConvert
         }
         else if (id = 2) {
-            if (this.tileEditorColors.current == this.tileEditorColors.terciary) {
+            if (this.tileEditorColors.current == id) {
                 this.tileEditorColors.current = colorConvert
             }
             this.tileEditorColors.terciary = colorConvert
         }
         else if (id = 3) {
-            if (this.tileEditorColors.current == this.tileEditorColors.extra) {
+            if (this.tileEditorColors.current == id) {
                 this.tileEditorColors.current = colorConvert
             }
             this.tileEditorColors.extra = colorConvert
